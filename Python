@@ -1,0 +1,56 @@
+import discord
+from discord.ext import commands
+from collections import defaultdict
+from enum import Enum
+
+class RunType(Enum):
+    # Define your RunTypes here, for example:
+    RUN_A = 1
+    RUN_B = 2
+
+class Run:
+    # Your Run class logic goes here
+    def has_expired(self):
+        # Your expiration logic here
+        return False
+
+    def end_run(self):
+        # Your end_run logic here
+        pass
+
+class TheJudge(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        self.participants = {}
+        self.ladder = defaultdict(set)
+        self.nonladder = defaultdict(set)
+        for run_type in RunType:
+            self.ladder[run_type] = set()
+            self.nonladder[run_type] = set()
+
+    def cleanse_runs(self):
+        if len(self.participants) == 0:
+            return
+        cleanse = set()
+        for run_type in RunType:
+            for run in self.ladder[run_type]:
+                if run.has_expired():
+                    cleanse.add(run)
+            for run in self.nonladder[run_type]:
+                if run.has_expired():
+                    cleanse.add(run)
+        for run in cleanse:
+            run.end_run()
+
+# Initialize bot
+intents = discord.Intents.default()
+intents.members = True  # Similar to GatewayIntent.GUILD_MEMBERS
+bot = commands.Bot(command_prefix="!", intents=intents, activity=discord.Game(name="Your Bot Activity"))
+bot.add_cog(TheJudge(bot))
+
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user}!')
+
+# Add your token here
+bot.run("YOUR_BOT_TOKEN")
