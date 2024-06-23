@@ -204,7 +204,7 @@ public class Responses {
             return Button.primary("nonladder-judge-queue."+type, "NL "+name);
         }
     }
-    public static Button listRunsButton(String id) { return Button.primary("runs-judge-queue"+id, "View Runs"); }
+    public static Button listRunsButton(String id) { return Button.primary("runs-judge-queue."+id, "View Runs"); }
     public static Button allTimeLeaderboardButton() { return Button.primary("alltime-leaderboard", "All Time Rankings"); }
     public static Button statsLeaderboardButton() { return Button.secondary("stats-leaderboard", "My Run Stats"); }
 
@@ -214,6 +214,11 @@ public class Responses {
     //========= EMBEDS
     public static MessageEmbed gameInfo(Run run, boolean isList) {
         EmbedBuilder embed = new EmbedBuilder();
+        if (run.getHost() == null) {
+            //clear the run
+            run.endRun();
+            return embed.build();
+        }
         embed.setTitle(run.getHost().getEffectiveName() + " - " + run.getModeAsString() + " " + run.getTypeAsString());
         if (run.isFull()) { embed.setColor(Color.RED); }
         else { embed.setColor(Color.GREEN); }
